@@ -11,7 +11,7 @@ from convolve import *
 from scipy.interpolate import interp1d
 import os
 from dataclasses import dataclass, field
-from scipy.optimize import minimize
+from scipy.optimize import minimize as scipy_minimize
 from lmfit import Parameters, minimize, fit_report
 
 # Created by storm at 03.03.25
@@ -450,7 +450,7 @@ def refit_continuum_spectrum_one_segment(wavelength_obs, flux_obs, error_obs_var
         continuum_start = wavelength_obs[0]
     function_args = (wavelength_obs, flux_obs, error_obs_variance, flux_synthetic)
     minimize_options = {'maxiter': 100, 'disp': False}
-    res = minimize(calc_chi_sq_continuum, x0=np.asarray([0.001, 1]), args=function_args, bounds=[(-0.1, 0.1), (0.8, 1.2)],
+    res = scipy_minimize(calc_chi_sq_continuum, x0=np.asarray([0.001, 1]), args=function_args, bounds=[(-0.1, 0.1), (0.8, 1.2)],
                    method='L-BFGS-B', options=minimize_options)
 
     continuum_coeff_a = res.x[0]
@@ -811,7 +811,7 @@ def fit_stellar_parameters(stellar_parameters: StellarParameters, payne_paramete
         resolution_val=payne_parameters.resolution_val,
         pixel_limits=payne_pixel_mask,
         flux_obs=flux_obs_cut,
-        refit_continuum=False,
+        refit_continuum=True,
     )
 
     params = Parameters()
