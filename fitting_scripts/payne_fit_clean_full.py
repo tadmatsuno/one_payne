@@ -443,18 +443,25 @@ def apply_continuum_correction(wavelength, wavelength_0, flux, continuum_slope_c
     :param continuum_intercept_coef: intercept
     :return:
     """
-    return flux + (1 - (continuum_slope_coef * (wavelength - wavelength_0) + continuum_intercept_coef))
+    return flux * (1 - (continuum_slope_coef * (wavelength - wavelength_0) + continuum_intercept_coef))
 
 def refit_continuum_spectrum_one_segment(wavelength_obs, flux_obs, error_obs_variance, flux_synthetic, continuum_start=None):
     if continuum_start is None:
         continuum_start = wavelength_obs[0]
-    function_args = (wavelength_obs, flux_obs, error_obs_variance, flux_synthetic)
-    minimize_options = {'maxiter': 100, 'disp': False}
-    res = scipy_minimize(calc_chi_sq_continuum, x0=np.asarray([0.001, 1]), args=function_args, bounds=[(-0.1, 0.1), (0.8, 1.2)],
-                   method='L-BFGS-B', options=minimize_options)
-
-    continuum_coeff_a = res.x[0]
-    continuum_coeff_b = res.x[1]
+    #function_args = (wavelength_obs, flux_obs, error_obs_variance, flux_synthetic)
+    #minimize_options = {'maxiter': 100, 'disp': False}
+    #res = scipy_minimize(calc_chi_sq_continuum, x0=np.asarray([0.001, 1]), args=function_args, bounds=[(-0.1, 0.1), (0.8, 1.2)],
+    #               method='L-BFGS-B', options=minimize_options)
+#
+    #continuum_coeff_a = res.x[0]
+    #continuum_coeff_b = res.x[1]
+    
+    poly_fit = np.polyfit(
+        wavelength_obs - continuum_start, 1. - flux_obs / flux_synthetic, 1, w=1/np.sqrt(error_obs_variance)   
+    )
+    continuum_coeff_a = poly_fit[0]
+    continuum_coeff_b = poly_fit[1]
+    
 
     #print(f"Refit continuum: slope={continuum_coeff_a:.6f}, intercept={continuum_coeff_b:.6f}")
 
