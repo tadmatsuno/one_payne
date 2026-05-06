@@ -818,7 +818,7 @@ def fit_stellar_parameters(stellar_parameters: StellarParameters, payne_paramete
         resolution_val=payne_parameters.resolution_val,
         pixel_limits=payne_pixel_mask,
         flux_obs=flux_obs_cut,
-        refit_continuum=True,
+        refit_continuum=False,
     )
 
     params = Parameters()
